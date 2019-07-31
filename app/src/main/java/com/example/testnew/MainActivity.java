@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.ViewTarget;
@@ -51,31 +52,32 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
-
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar=findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("");
 
-        profile_image = findViewById(R.id.profile_image);
-        username = findViewById(R.id.username);
+        profile_image=findViewById(R.id.profile_image);
+        username=findViewById(R.id.username);
 
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        reference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
+        firebaseUser=FirebaseAuth.getInstance().getCurrentUser();
+        reference=FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
 
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                User user = dataSnapshot.getValue(User.class);
+                User user=dataSnapshot.getValue(User.class);
                 username.setText(user.getUsername());
 
                 profile_image.setImageResource(R.mipmap.ic_launcher);
 
 
-                if (user.getImageURL().equals("default")){
+                if (user.getImageURL().equals("default")) {
                     profile_image.setImageResource(R.mipmap.ic_launcher);
-                }else {
-                    ViewTarget<ImageView, Drawable> into = Glide.with(MainActivity.this).load(user.getImageURL()).into(profile_image);
+                } else {
+
+                    Glide.with(getApplicationContext()).load(user.getImageURL()).into(profile_image);
+                    // ViewTarget<ImageView, Drawable> into = Glide.with(MainActivity.this).load(user.getImageURL()).into(profile_image);
                 }
             }
 
@@ -85,10 +87,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        TabLayout tabLayout = findViewById(R.id.tab_layout);
-        ViewPager viewPager = findViewById(R.id.view_pager);
+        TabLayout tabLayout=findViewById(R.id.tab_layout);
+        ViewPager viewPager=findViewById(R.id.view_pager);
 
-        ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+        ViewPagerAdapter viewPagerAdapter=new ViewPagerAdapter(getSupportFragmentManager());
 
 
         viewPagerAdapter.addFragment(new ChatsFragment(), "Sohbet");
@@ -120,17 +122,16 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    class ViewPagerAdapter extends FragmentPagerAdapter{
+    class ViewPagerAdapter extends FragmentPagerAdapter {
 
         private ArrayList<Fragment> fragments;
         private ArrayList<String> titles;
 
-        ViewPagerAdapter(FragmentManager fm){
+        ViewPagerAdapter(FragmentManager fm) {
             super(fm);
-            this.fragments = new ArrayList<>();
-            this.titles = new ArrayList<>();
+            this.fragments=new ArrayList<>();
+            this.titles=new ArrayList<>();
         }
-
         @Override
         public Fragment getItem(int position) {
             return fragments.get(position);
@@ -141,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
             return fragments.size();
         }
 
-        public void addFragment (Fragment fragment, String title){
+        public void addFragment(Fragment fragment, String title) {
             fragments.add(fragment);
             titles.add(title);
         }
@@ -153,15 +154,28 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void status(String status){ //kullanıcı çevirim içi - çevirim dışı görünümünü ayarlar
+    private void status(String status) { //kullanıcı çevirim içi - çevirim dışı görünümünü ayarlar
 
-        reference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
+        reference=FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
 
-        HashMap<String, Object> hashMap = new HashMap<>();
+
+        HashMap<String, Object> hashMap=new HashMap<>();
         hashMap.put("status", status);
-
         reference.updateChildren(hashMap);
 
+           /*firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+           reference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
+
+           if (reference != null) {
+               HashMap<String, Object> hashMap=new HashMap<>();
+               hashMap.put("status", status);
+
+               reference.updateChildren(hashMap);
+           }else {
+               startActivity(new Intent(MainActivity.this, RegisterActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+              // finish();
+           }
+*/
     }
 
     @Override

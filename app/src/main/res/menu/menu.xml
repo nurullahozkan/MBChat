@@ -6,4 +6,8 @@
         android:title="Çıkış Yap"
         app:showAsAction="never"/>
 
+    <item android:id="@+id/delete_account"
+        android:title="Hesabımı Sil"
+        app:showAsAction="never"/>
+
 </menu>
