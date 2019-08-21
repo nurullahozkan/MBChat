@@ -57,12 +57,13 @@
 
         <EditText
             android:id="@+id/text_send"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toLeftOf="@id/btn_send"
+            android:layout_toRightOf="@id/btn_sendimage"
             android:layout_centerVertical="true"
             android:background="@android:color/transparent"
-            android:hint="Type a message..."/>
+            android:hint=""/>
 
         <ImageButton
             android:id="@+id/btn_send"
@@ -71,6 +72,14 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:background="@drawable/ic_action_name"/>
+
+        <ImageButton
+            android:id="@+id/btn_sendimage"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentLeft="true"
+            android:background="@drawable/add_image"
+            android:layout_alignParentStart="true" />
 
     </RelativeLayout>
 

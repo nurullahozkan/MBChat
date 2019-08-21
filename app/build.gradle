@@ -38,6 +38,18 @@ dependencies {
 
     implementation 'com.github.bumptech.glide:glide:4.8.0'
 
+    implementation 'com.squareup.picasso:picasso:2.5.0'
+
+
+    implementation 'com.squareup.retrofit2:retrofit:2.5.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
+    implementation 'com.google.firebase:firebase-messaging:19.0.1'
+
+
+    /*implementation 'com.squareup.retrofit2:retrofit:2.5.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
+    implementation 'com.google.firebase:firebase-messaging:19.0.1'*/
+
 
     implementation 'com.google.firebase:firebase-database:18.0.0'
     implementation 'com.google.firebase:firebase-auth:18.1.0'

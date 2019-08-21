@@ -1,9 +1,6 @@
 package com.example.testnew;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -11,6 +8,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -90,17 +91,20 @@ public class RegisterActivity extends AppCompatActivity {
                             hashMap.put("imageURL", "default");
                             hashMap.put("status", "offline");
                             hashMap.put("search", username.toLowerCase());
-                        /*
                             hashMap.put("email", email);
-                            hashMap.put("password", password);*/
+                            hashMap.put("password", password);
 
                             reference.setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()){
 
+                                        btn_register.setEnabled(false);
+                                        final ProgressDialog pd = new ProgressDialog(RegisterActivity.this);
+                                        pd.setMessage("Kayıt Yapılıyor..");
+                                        pd.show();
                                         Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
-                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                        //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                                         startActivity(intent);
                                         finish();
                                     }
@@ -109,7 +113,9 @@ public class RegisterActivity extends AppCompatActivity {
                             });
 
                         }else {
+
                             Toast.makeText(RegisterActivity.this, "Bu email adresi ile daha önce kaydolunmuş!!", Toast.LENGTH_SHORT).show();
+                            btn_register.setEnabled(true);
                         }
 
                     }

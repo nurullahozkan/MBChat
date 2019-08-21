@@ -1,5 +1,13 @@
 package com.example.testnew;
 
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,20 +17,11 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
-import android.content.Intent;
-import android.graphics.drawable.Drawable;
-import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.ViewTarget;
 import com.example.testnew.Fragments.ChatsFragment;
 import com.example.testnew.Fragments.ProfileFragment;
 import com.example.testnew.Fragments.UsersFragment;
+import com.example.testnew.Model.Chat;
 import com.example.testnew.Model.User;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -46,6 +45,21 @@ public class MainActivity extends AppCompatActivity {
     FirebaseUser firebaseUser;
     DatabaseReference reference;
 
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        //kullanıcının null olup olmadığını kontrol ediyor
+        if (firebaseUser == null){
+            Intent intent = new Intent(MainActivity.this, StartActivity.class);
+            startActivity(intent);
+            finish();
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,7 +81,14 @@ public class MainActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                 User user=dataSnapshot.getValue(User.class);
-                username.setText(user.getUsername());
+                if(firebaseUser != null){
+                    username.setText(user.getUsername());
+                }else {
+                    Intent intent = new Intent(MainActivity.this, StartActivity.class);
+                    startActivity(intent);
+                    finish();
+                    Toast.makeText(MainActivity.this, "Lütfen Uygulamanızı kaldırıp tekrar yükleyiniz!!", Toast.LENGTH_SHORT).show();
+                }
 
                 profile_image.setImageResource(R.mipmap.ic_launcher);
 
@@ -87,20 +108,48 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        TabLayout tabLayout=findViewById(R.id.tab_layout);
-        ViewPager viewPager=findViewById(R.id.view_pager);
-
-        ViewPagerAdapter viewPagerAdapter=new ViewPagerAdapter(getSupportFragmentManager());
+        final TabLayout tabLayout=findViewById(R.id.tab_layout);
+        final ViewPager viewPager=findViewById(R.id.view_pager);
 
 
-        viewPagerAdapter.addFragment(new ChatsFragment(), "Sohbet");
-        viewPagerAdapter.addFragment(new UsersFragment(), "Kullanıcılar");
-        viewPagerAdapter.addFragment(new ProfileFragment(), "Profilim");
+        reference = FirebaseDatabase.getInstance().getReference("Chats");
+
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                ViewPagerAdapter viewPagerAdapter=new ViewPagerAdapter(getSupportFragmentManager());
+
+                int unread = 0;
+
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    Chat chat = snapshot.getValue(Chat.class);
+                    if (chat.getReceiver().equals(firebaseUser.getUid()) && !chat.isIsseen()){
+                        unread++;
+                    }
+                }
+                if (unread == 0){
+                    viewPagerAdapter.addFragment(new ChatsFragment(), "Sohbet");
+                }else {
+                    viewPagerAdapter.addFragment(new ChatsFragment(), "("+unread+") Sohbet");
+                }
 
 
-        viewPager.setAdapter(viewPagerAdapter);
+                viewPagerAdapter.addFragment(new UsersFragment(), "Kişiler");
+              //  viewPagerAdapter.addFragment(new StatusFragment(), "Durumlar");
+                viewPagerAdapter.addFragment(new ProfileFragment(), "Profilim");
 
-        tabLayout.setupWithViewPager(viewPager);
+
+                viewPager.setAdapter(viewPagerAdapter);
+
+                tabLayout.setupWithViewPager(viewPager);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
 
     }
 
@@ -116,8 +165,22 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.logout :
                 FirebaseAuth.getInstance().signOut();
+                final ProgressDialog pd = new ProgressDialog(MainActivity.this);
+                pd.setMessage("Çıkış Yapılıyor...");
+                pd.show();
                 startActivity(new Intent(MainActivity.this, StartActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                 return true;
+        }
+        switch (item.getItemId()){
+
+           /* case R.id.delete_account :
+                final ProgressDialog pd = new ProgressDialog(MainActivity.this);
+                pd.setMessage("Hesabınız Siliniyor....");
+                pd.show();
+                firebaseUser.delete(); // authentication delete
+                reference.removeValue(); // realtime database user delete
+                finish();*/
+
         }
         return false;
     }
@@ -163,19 +226,6 @@ public class MainActivity extends AppCompatActivity {
         hashMap.put("status", status);
         reference.updateChildren(hashMap);
 
-           /*firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-           reference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
-
-           if (reference != null) {
-               HashMap<String, Object> hashMap=new HashMap<>();
-               hashMap.put("status", status);
-
-               reference.updateChildren(hashMap);
-           }else {
-               startActivity(new Intent(MainActivity.this, RegisterActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-              // finish();
-           }
-*/
     }
 
     @Override

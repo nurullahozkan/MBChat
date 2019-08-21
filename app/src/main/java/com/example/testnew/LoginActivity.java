@@ -1,28 +1,23 @@
 package com.example.testnew;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-/*
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;*/
-import com.example.testnew.Model.User;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -69,21 +64,27 @@ public class LoginActivity extends AppCompatActivity {
                 String txt_password = password.getText().toString();
 
 
-
                 if (TextUtils.isEmpty(txt_email) || TextUtils.isEmpty(txt_password)){
 
-                    Toast.makeText(LoginActivity.this, "Bütün alanları doldurmalısnız!!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "Bütün alanları doldurmalısınız!!", Toast.LENGTH_SHORT).show();
                 }else {
+
+
                     btn_login.setEnabled(false);
                     auth.signInWithEmailAndPassword(txt_email, txt_password)
                             .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (task.isSuccessful()) {
-                                        
-                                         Intent i = new Intent(LoginActivity.this, MainActivity.class);
-                                            startActivity(i);
-                                            finish();
+
+
+                                        final ProgressDialog pd = new ProgressDialog(LoginActivity.this);
+                                        pd.setMessage("Giriş Yapılıyor..");
+                                        pd.show();
+                                       // finish();
+
+                                        startActivity(new Intent(LoginActivity.this, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                                        finish();
 
                                     } else {
 
